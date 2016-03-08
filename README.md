@@ -1,0 +1,2 @@
+# JCSlideView
+JCSlideView是一个简单易用的左右滑动切换页面，使用手势和ViewController实现
