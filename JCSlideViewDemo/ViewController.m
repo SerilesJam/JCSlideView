@@ -38,6 +38,9 @@
 - (UIViewController *)JCSlideView:(JCSlideView *)slideView viewControllerAtIndex:(NSInteger)index {
     UIStoryboard *storyBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     JCPageViewController *viewController = [storyBoard instantiateViewControllerWithIdentifier:@"PageViewController"];
+    viewController.tagInfo = [NSString stringWithFormat:@"%ld", index];
+    int32_t rgbValue = rand();
+    viewController.view.backgroundColor = [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16)/255.0 green:((rgbValue & 0xFF00) >> 8)/255.0 blue:(rgbValue & 0xFF)/255.0 alpha:1.0];
     
     return viewController;
 }

@@ -10,4 +10,6 @@
 
 @interface JCPageViewController : UIViewController
 
+@property (nonatomic, strong) NSString *tagInfo;
+
 @end

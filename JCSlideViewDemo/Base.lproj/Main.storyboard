@@ -19,10 +19,9 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nd0-qh-p1A" customClass="JCSlideView">
                                 <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" red="0.67843137249999996" green="0.67843137249999996" blue="0.67843137249999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="Nd0-qh-p1A" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="4D1-jl-gdl"/>
                             <constraint firstAttribute="trailing" secondItem="Nd0-qh-p1A" secondAttribute="trailing" id="CCr-dD-XHP"/>
@@ -34,10 +33,10 @@
                                 <exclude reference="Nd0-qh-p1A"/>
                             </mask>
                             <mask key="constraints">
+                                <exclude reference="nhc-y5-Bcg"/>
                                 <exclude reference="4D1-jl-gdl"/>
                                 <exclude reference="CCr-dD-XHP"/>
                                 <exclude reference="ubC-eC-gOh"/>
-                                <exclude reference="nhc-y5-Bcg"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=regular-widthClass=compact">
@@ -45,10 +44,10 @@
                                 <include reference="Nd0-qh-p1A"/>
                             </mask>
                             <mask key="constraints">
+                                <include reference="nhc-y5-Bcg"/>
                                 <include reference="4D1-jl-gdl"/>
                                 <include reference="CCr-dD-XHP"/>
                                 <include reference="ubC-eC-gOh"/>
-                                <include reference="nhc-y5-Bcg"/>
                             </mask>
                         </variation>
                     </view>
@@ -69,6 +68,7 @@
                         <viewControllerLayoutGuide type="bottom" id="tKW-NX-Oka"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="jUK-CG-Pob">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MyF-2m-tU3">
@@ -90,9 +90,11 @@
                                         <include reference="8Gg-JH-myr"/>
                                     </mask>
                                 </variation>
+                                <connections>
+                                    <action selector="onClickButton:" destination="AXJ-iZ-z9P" eventType="touchUpInside" id="drt-Tn-4hu"/>
+                                </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" red="1" green="0.49803921569999998" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="MyF-2m-tU3" firstAttribute="leading" secondItem="jUK-CG-Pob" secondAttribute="leading" constant="20" id="9A9-dH-PL8"/>
                             <constraint firstItem="MyF-2m-tU3" firstAttribute="leading" secondItem="jUK-CG-Pob" secondAttribute="leading" constant="20" id="COe-uj-Zhu"/>
