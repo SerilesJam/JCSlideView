@@ -45,4 +45,8 @@
     return viewController;
 }
 
+- (NSInteger)numberOfViewConrollersInJCSlideView:(JCSlideView *)slideView {
+    return 5;
+}
+
 @end

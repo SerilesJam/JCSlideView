@@ -8,7 +8,8 @@
 
 #import "JCSlideView.h"
 
-#define kPanOffsetXHold 64.0f
+#define WeakObj(o) try{} @finally{} __weak typeof(o) o##Weak = o;
+#define kPanOffsetXHold 120.0f
 
 @interface JCSlideView ()
 
@@ -23,9 +24,18 @@
 @property (nonatomic, strong) NSLayoutConstraint *currentConstraintLeft;
 @property (nonatomic, strong) NSLayoutConstraint *willConstraintLeft;
 
+@property (nonatomic, strong) NSNumber *countOfViewControllers;
+
 @end
 
 @implementation JCSlideView
+
+- (NSNumber *)countOfViewControllers {
+    if (_countOfViewControllers == nil) {
+        _countOfViewControllers = [NSNumber numberWithInteger:[_dataSource numberOfViewConrollersInJCSlideView:self]];
+    }
+    return _countOfViewControllers;
+}
 
 - (id)initWithCoder:(NSCoder *)aDecoder {
     self = [super initWithCoder:aDecoder];
@@ -49,7 +59,6 @@
 
 - (void)setup {
     self.currentIndex = -1;
-    
     self.panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanGesture:)];
     [self addGestureRecognizer:self.panGestureRecognizer];
 }
@@ -89,7 +98,6 @@
     
     if (pan.state == UIGestureRecognizerStateBegan) {
         self.panStartPoint = point;
-        [self.currentViewController beginAppearanceTransition:NO animated:YES];
     } else if (pan.state == UIGestureRecognizerStateChanged) {
         
         //每次滑动重新布局
@@ -104,45 +112,68 @@
             panIndex = self.currentIndex + 1;
         }
         
-        if (panIndex != self.lastPanIndex) {
+        if (panIndex < 0 || panIndex >= [self.countOfViewControllers integerValue]) {
             self.lastPanIndex = panIndex;
-            
-            self.willViewController = [self.dataSource JCSlideView:self viewControllerAtIndex:panIndex];
-            [self.baseViewController addChildViewController:self.willViewController];
-            [self.willViewController.view setTranslatesAutoresizingMaskIntoConstraints:NO];
-            [self addSubview:self.willViewController.view];
-            
-            NSDictionary *layoutViews = @{@"view":self.willViewController.view};
-            self.willConstraintLeft = [NSLayoutConstraint constraintWithItem:self.willViewController.view attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1.0 constant:self.bounds.size.width];
-            NSLayoutConstraint *layoutConstraintWith = [NSLayoutConstraint constraintWithItem:self.willViewController.view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0];
-            NSArray *constraints_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[view]|" options:0 metrics:nil views:layoutViews];
-            
-            [self addConstraint:self.willConstraintLeft];
-            [self addConstraint:layoutConstraintWith];
-            [self addConstraints:constraints_V];
-            
-            [self.willViewController didMoveToParentViewController:self.baseViewController];
-            
             [self handlerAnimationForOffsetx:panOffsetX];
         } else {
+            if (panIndex != self.lastPanIndex) {
+                self.lastPanIndex = panIndex;
+                
+                self.willViewController = [self.dataSource JCSlideView:self viewControllerAtIndex:panIndex];
+                [self.baseViewController addChildViewController:self.willViewController];
+                [self.willViewController.view setTranslatesAutoresizingMaskIntoConstraints:NO];
+                [self addSubview:self.willViewController.view];
+                
+                NSDictionary *layoutViews = @{@"view":self.willViewController.view};
+                self.willConstraintLeft = [NSLayoutConstraint constraintWithItem:self.willViewController.view attribute:NSLayoutAttributeLeft relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeLeft multiplier:1.0 constant:self.bounds.size.width];
+                NSLayoutConstraint *layoutConstraintWith = [NSLayoutConstraint constraintWithItem:self.willViewController.view attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0.0];
+                NSArray *constraints_V = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[view]|" options:0 metrics:nil views:layoutViews];
+                
+                [self addConstraint:self.willConstraintLeft];
+                [self addConstraint:layoutConstraintWith];
+                [self addConstraints:constraints_V];
+                
+                [self.willViewController didMoveToParentViewController:self.baseViewController];
+            }
             [self handlerAnimationForOffsetx:panOffsetX];
         }
     } else if (pan.state == UIGestureRecognizerStateEnded) {
-        
+        @WeakObj(self)
         CGFloat offsetX = point.x - self.panStartPoint.x;
         
-        if (fabs(offsetX) > kPanOffsetXHold) {
-            NSTimeInterval animationTime = (self.bounds.size.width - fabs(offsetX)) / self.bounds.size.width*0.6;
-            [self handlerAnimationForOffsetx:(offsetX > 0 ? self.bounds.size.width : -self.bounds.size.width)];
+        if (self.lastPanIndex >= 0 && self.lastPanIndex < [self.countOfViewControllers integerValue]) {
+            if (fabs(offsetX) > kPanOffsetXHold) {
+                NSTimeInterval animationTime = (self.bounds.size.width - fabs(offsetX)) / self.bounds.size.width*0.6;
+                [self handlerAnimationForOffsetx:(offsetX > 0 ? self.bounds.size.width : -self.bounds.size.width)];
+                [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+                [UIView animateWithDuration:animationTime animations:^{
+                    [self layoutIfNeeded];
+                } completion:^(BOOL completion){
+                    selfWeak.currentIndex = self.lastPanIndex;
+                    [selfWeak removeCurrentViewController];
+                    selfWeak.currentViewController = self.willViewController;
+                    selfWeak.willViewController = nil;
+                    selfWeak.currentConstraintLeft = selfWeak.willConstraintLeft;
+                }];
+            } else {
+                [self handlerAnimationForOffsetx:0];
+                self.lastPanIndex = self.currentIndex;
+                NSTimeInterval animationTime = fabs(offsetX) / self.bounds.size.width*0.6;
+                [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+                [UIView animateWithDuration:animationTime animations:^{
+                    [self layoutIfNeeded];
+                } completion:^(BOOL completion){
+                    [selfWeak backToCurrentViewController];
+                }];
+            }
+        } else {
+            [self handlerAnimationForOffsetx:0];
+            NSTimeInterval animationTime = fabs(offsetX) / self.bounds.size.width*0.6;
             [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
             [UIView animateWithDuration:animationTime animations:^{
                 [self layoutIfNeeded];
             } completion:^(BOOL completion){
-                self.currentIndex = self.lastPanIndex;
-                [self removeCurrentViewController];
-                self.currentViewController = nil;
-                self.currentViewController = self.willViewController;
-                self.willViewController = nil;
+                [selfWeak backToCurrentViewController];
             }];
         }
     }
@@ -151,11 +182,19 @@
 #pragma privateMethod
 
 - (void)removeCurrentViewController {
-    
     [self.currentViewController willMoveToParentViewController:nil];
     [self.currentViewController.view removeFromSuperview];
     [self.currentViewController removeFromParentViewController];
-    
+}
+
+- (void)backToCurrentViewController {
+    if (!self.willViewController) {
+        return;
+    }
+    [self.willViewController willMoveToParentViewController:nil];
+    [self.willViewController.view removeFromSuperview];
+    [self.willViewController removeFromParentViewController];
+    self.willViewController = nil;
 }
 
 - (void)handlerAnimationForOffsetx:(CGFloat)offsetx {
@@ -171,7 +210,10 @@
     }
     
     self.currentConstraintLeft.constant = offsetx;
-    self.willConstraintLeft.constant = actualOffsetX;
+    if (self.lastPanIndex >= 0 && self.lastPanIndex < [self.countOfViewControllers integerValue]) {
+        self.willConstraintLeft.constant = actualOffsetX;
+    }
+    
 }
 
 @end

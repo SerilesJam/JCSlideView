@@ -14,6 +14,7 @@
 
 @required
 - (UIViewController *)JCSlideView:(JCSlideView *)slideView viewControllerAtIndex:(NSInteger)index;
+- (NSInteger)numberOfViewConrollersInJCSlideView:(JCSlideView *)slideView;
 
 @end
 
