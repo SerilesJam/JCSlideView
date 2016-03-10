@@ -518,6 +518,7 @@
 				EB676F231C89216A009363D4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		EB676F241C89216A009363D4 /* Build configuration list for PBXNativeTarget "JCSlideViewDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -526,6 +527,7 @@
 				EB676F261C89216A009363D4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		EB676F271C89216A009363D4 /* Build configuration list for PBXNativeTarget "JCSlideViewDemoUITests" */ = {
 			isa = XCConfigurationList;
@@ -534,6 +536,7 @@
 				EB676F291C89216A009363D4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
